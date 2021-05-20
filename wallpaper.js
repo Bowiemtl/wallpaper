@@ -1,70 +1,85 @@
 var canvas = document.querySelector('canvas');
 var ctx = canvas.getContext('2d');
 
+let volumes = {};
+
+for (let i = 0; i < 128; i++) {
+    volumes[i] = 0;
+}
+
 function resize(){
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     canvas.style.width = window.innerWidth + "px";
     canvas.style.height = window.innerHeight + "px";
-
 }
 
-const animate = (audioData) => {
-    window.requestAnimationFrame(animate);
-
+var detail = 20;
+const draw = function () {
+    window.requestAnimationFrame(draw);
     ctx.clearRect(0,0, innerWidth, innerHeight);
 
-    ctx.strokeStyle = "afa34a3";
-    ctx.beginPath();
-    ctx.lineTo(5, 5);
-    ctx.lineTo(15, 5);
+    ctx.lineWidth = 2;
+    var baseX = canvas.width / 2;
+    var baseY = canvas.height / 2;
+    for (let j = 0; j < 1; j++) {
+        ctx.beginPath();
+        //for(let i = volumes.length - 1; i >= 0; i--){
+        var length =  volumes.length;
 
 
+        for(let i = 0; i < length; i++){
+            var angle = 90 - (i * (2 * Math.PI / length));
+            var radius = volumes[i] * 200 + 200;
 
-    ctx.lineTo(5, 15);
-    ctx.beginPath();
-    for(let i = 0; i < audioData.length; i++){
-        let posX = audioData[i] * Math.sin(i * (360 / length));
+            let posX = radius * Math.cos(angle);
+            let posY = radius * Math.sin(angle);
 
-        let posY = audioData[i] * Math.cos(i * (360 / length));
-        ctx.lineTo(posX, posY);
+            var next_angle = 90 - ((i + 1) * (2 * Math.PI / length));
+            var next_radius = volumes[i + 1] * (j * 100) + 200;
+
+            let next_posX = next_radius * Math.cos(next_angle);
+            let next_posY = next_radius * Math.sin(next_angle);
+
+            ctx.quadraticCurveTo(posX + baseX, posY + baseY, next_posX + baseX, next_posY + baseY);
+
+            //ctx.lineTo(posX + baseX, posY + baseY);
+
+            var r, g, b = 0;
+            r = i*2;
+            g = i*2;
+            b = i*2;
+            ctx.strokeStyle = rgbToHex(r, g, b).toString();
+        }
+        //ctx.quadraticCurveTo(points[i].x, points[i].y, points[i+1].x,points[i+1].y);
+        ctx.closePath();
+        ctx.fillStyle = 'white'
+        ctx.fill("nonzero");
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(100, 75, j * 100, 0, 2 * Math.PI);
+        ctx.fillStyle = 'black'
+        ctx.stroke();
+        ctx.fill("nonzero");
+
     }
-    ctx.stroke();
 }
 
 window.onload = function () {
     resize();
-    window.requestAnimationFrame(animate());
+    window.requestAnimationFrame(draw);
+    draw();
 }
+
 window.onresize = function () {
     resize();
 }
 
 window.wallpaperRegisterAudioListener((audioData) => {
-    let average = 0;
-    for (let i = 0; i < audioData.length; i++){
-        average += audioData[i];
-    }
-    average / audioData.length;
-    GLOBE_RADIUS = average * 10;
-    animate(audioData);
+    volumes = audioData;
 });
 
-
-
-/*window.wallpaperRegisterAudioListener((audioData) => {
-});
-window.wallpaperPropertyListener = {
-    applyUserProperties: function (properties) {
-        /!*if (properties.something == ""){
-
-        }*!/
-    }
+function rgbToHex(r, g, b) {
+    return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
-
-ctx.fillRect( 50, 100, 40, 40);
-
-ctx.beginPath();
-ctx.arc(50, 50, 30, 0, Math.PI * 2, false);
-ctx.strokeStyle = "afa34a3";
-ctx.stroke();*/

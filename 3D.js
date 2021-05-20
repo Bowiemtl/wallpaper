@@ -11,6 +11,7 @@ canvas.style.width = window.innerWidth + "px";
 canvas.style.height = window.innerHeight + "px";
 // Store the 2D context
 const ctx = canvas.getContext('2d');
+ctx.strokeStyle = "ffffff";
 
 if (window.devicePixelRatio > 1) {
     canvas.width = canvas.clientWidth * 2;
@@ -90,6 +91,7 @@ function createDots() {
 function render(a) {
     // Clear the scene
     ctx.clearRect(0, 0, width, height);
+    ctx.strokeStyle = "ffffff";
 
     // Increase the globe rotation
     rotation = a * 0.0004;
@@ -150,6 +152,6 @@ window.wallpaperRegisterAudioListener((audioData) => {
         average += audioData[i];
     }
     average / audioData.length;
-    GLOBE_RADIUS = average * 10;
+    GLOBE_RADIUS = average * 40;
     createDots();
 });
